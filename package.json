@@ -1,0 +1,52 @@
+{
+  "name": "emergency-alert-poc",
+  "main": "index.js",
+  "version": "1.0.2",
+  "scripts": {
+    "start": "expo start",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
+    "web": "expo start --web",
+    "build:apk": "eas build -p android --profile preview",
+    "build:apk:local": "node scripts/version.js increment && cd android && gradlew.bat assembleRelease -x lint -x test && cd .. && node scripts/copy-apk.js",
+    "version:current": "node scripts/version.js current",
+    "version:apply": "node scripts/version.js apply",
+    "version:rollback": "node scripts/version.js rollback"
+  },
+  "dependencies": {
+    "@notifee/react-native": "^9.1.8",
+    "@react-native-async-storage/async-storage": "^2.2.0",
+    "@react-native-firebase/app": "^23.8.8",
+    "@react-native-firebase/messaging": "^23.8.8",
+    "@react-navigation/native": "^7.1.28",
+    "expo": "~55.0.5",
+    "expo-build-properties": "^55.0.9",
+    "expo-camera": "^55.0.9",
+    "expo-constants": "~55.0.7",
+    "expo-dev-client": "^55.0.13",
+    "expo-device": "^55.0.9",
+    "expo-font": "~55.0.4",
+    "expo-haptics": "^55.0.8",
+    "expo-linking": "~55.0.7",
+    "expo-notifications": "^55.0.11",
+    "expo-router": "~55.0.4",
+    "expo-splash-screen": "~55.0.10",
+    "expo-status-bar": "~55.0.4",
+    "expo-symbols": "~55.0.5",
+    "expo-web-browser": "~55.0.9",
+    "firebase": "^12.10.0",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "react-native": "0.83.2",
+    "react-native-reanimated": "4.2.1",
+    "react-native-safe-area-context": "~5.6.2",
+    "react-native-screens": "~4.23.0",
+    "react-native-web": "~0.21.0",
+    "react-native-worklets": "0.7.2"
+  },
+  "devDependencies": {
+    "@types/react": "~19.2.2",
+    "typescript": "~5.9.2"
+  },
+  "private": true
+}
