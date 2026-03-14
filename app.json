@@ -2,9 +2,13 @@
   "expo": {
     "name": "emergency-alert-poc",
     "slug": "emergency-alert-poc",
-    "version": "1.0.2",
+    "version": "1.0.6",
     "extra": {
-      "versionCode": 3
+      "versionCode": 7,
+      "router": {},
+      "eas": {
+        "projectId": "2862eebe-f3ef-417d-b54a-433668fe85e8"
+      }
     },
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -34,6 +38,13 @@
         "DISABLE_KEYGUARD",
         "WAKE_LOCK",
         "ACCESS_NOTIFICATION_POLICY",
+        "POST_NOTIFICATIONS",
+        "RECEIVE_BOOT_COMPLETED",
+        "VIBRATE",
+        "USE_FULL_SCREEN_INTENT",
+        "DISABLE_KEYGUARD",
+        "WAKE_LOCK",
+        "ACCESS_NOTIFICATION_POLICY",
         "POST_NOTIFICATIONS"
       ],
       "package": "com.emergencyalert.poc"
@@ -56,10 +67,17 @@
       "./withNotifeeAndroidFix",
       "./withEmergencySound",
       "./withFirebaseManifestFix",
+      "./withWakeScreen",
       "./withVersion"
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/2862eebe-f3ef-417d-b54a-433668fe85e8"
     }
   }
 }

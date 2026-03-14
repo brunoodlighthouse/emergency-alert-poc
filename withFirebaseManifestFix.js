@@ -1,5 +1,6 @@
 const { withDangerousMod } = require('@expo/config-plugins');
 const path = require('path');
+const fs = require('fs');
 
 /**
  * Resolve conflito de merge entre expo-notifications e react-native-firebase
@@ -9,27 +10,45 @@ function withFirebaseManifestFix(config) {
   return withDangerousMod(config, [
     'android',
     async (config) => {
-      const projectRoot = config.modRequest.projectRoot;
       const manifestPath = path.join(
-        projectRoot,
-        'android',
+        config.modRequest.platformProjectRoot,
         'app',
         'src',
         'main',
         'AndroidManifest.xml'
       );
 
-      const fs = require('fs');
       let manifest = fs.readFileSync(manifestPath, 'utf8');
 
+      // 1. Ensure xmlns:tools is declared on the root <manifest> element
+      if (!manifest.includes('xmlns:tools=')) {
+        manifest = manifest.replace(
+          '<manifest ',
+          '<manifest xmlns:tools="http://schemas.android.com/tools" '
+        );
+        console.log('[FirebaseManifestFix] Added xmlns:tools namespace');
+      }
+
+      // 2. Add tools:replace="android:resource" to the conflicting meta-data.
+      //    Uses a flexible regex that matches any attribute order/spacing.
+      const before = manifest;
       manifest = manifest.replace(
-        /<meta-data android:name="com\.google\.firebase\.messaging\.default_notification_color" android:resource="@color\/notification_icon_color"\/>/,
-        '<meta-data android:name="com.google.firebase.messaging.default_notification_color" android:resource="@color/notification_icon_color" tools:replace="android:resource"/>'
+        /(<meta-data[^>]*android:name="com\.google\.firebase\.messaging\.default_notification_color"[^>]*?)(\s*\/>)/,
+        (match, attrs, closing) => {
+          if (attrs.includes('tools:replace')) {
+            console.log('[FirebaseManifestFix] tools:replace already present, skipping');
+            return match;
+          }
+          console.log('[FirebaseManifestFix] Applied tools:replace to default_notification_color');
+          return `${attrs} tools:replace="android:resource"${closing}`;
+        }
       );
 
-      fs.writeFileSync(manifestPath, manifest);
-      console.log('Firebase manifest fix aplicado (tools:replace)');
+      if (manifest === before) {
+        console.warn('[FirebaseManifestFix] WARNING: default_notification_color meta-data not found in manifest. Fix was NOT applied.');
+      }
 
+      fs.writeFileSync(manifestPath, manifest);
       return config;
     },
   ]);

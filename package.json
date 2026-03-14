@@ -1,7 +1,7 @@
 {
   "name": "emergency-alert-poc",
   "main": "index.js",
-  "version": "1.0.2",
+  "version": "1.0.6",
   "scripts": {
     "start": "expo start",
     "android": "expo run:android",
@@ -23,7 +23,7 @@
     "expo-build-properties": "^55.0.9",
     "expo-camera": "^55.0.9",
     "expo-constants": "~55.0.7",
-    "expo-dev-client": "^55.0.13",
+    "expo-dev-client": "~55.0.16",
     "expo-device": "^55.0.9",
     "expo-font": "~55.0.4",
     "expo-haptics": "^55.0.8",
@@ -33,6 +33,7 @@
     "expo-splash-screen": "~55.0.10",
     "expo-status-bar": "~55.0.4",
     "expo-symbols": "~55.0.5",
+    "expo-updates": "~55.0.13",
     "expo-web-browser": "~55.0.9",
     "firebase": "^12.10.0",
     "react": "19.2.0",

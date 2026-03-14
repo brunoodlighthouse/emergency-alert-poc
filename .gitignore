@@ -42,3 +42,6 @@ yarn-error.*
 
 # APKs gerados localmente
 /apks/
+
+# Firebase
+google-services.json

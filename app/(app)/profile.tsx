@@ -1,15 +1,60 @@
-import { View, Text, StyleSheet, TouchableOpacity, Alert, Platform } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, Platform, Linking } from 'react-native';
 import Constants from 'expo-constants';
 import { router } from 'expo-router';
+import { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { signOut } from '@/lib/firebase';
-import { openNotificationSettings } from '@/lib/notifications';
+import { hasDndAccess, openDndAccessSettings, openNotificationSettings } from '@/lib/notifications';
 
 const appVersion = Constants.expoConfig?.version ?? '0.0.0';
 const versionCode = Constants.expoConfig?.extra?.versionCode ?? 0;
 
 export default function ProfileScreen() {
   const { user, userData } = useAuth();
+  const [dndGranted, setDndGranted] = useState<boolean | null>(null);
+  // Android 14+ exige permissão explícita para USE_FULL_SCREEN_INTENT
+  const needsFullScreenPermission = Platform.OS === 'android' && Platform.Version >= 34;
+
+  useEffect(() => {
+    if (Platform.OS !== 'android') return;
+    hasDndAccess().then(setDndGranted);
+  }, []);
+
+  const handleFullScreenPermission = () => {
+    Alert.alert(
+      'Permissão: Tela cheia',
+      'Para o alerta aparecer sobre o lockscreen e acender a tela, o app precisa de permissão de "exibição em tela cheia".\n\nNa próxima tela, encontre "Emergency Alert" e ative.',
+      [
+        {
+          text: 'Abrir configurações',
+          onPress: () =>
+            Linking.sendIntent(
+              'android.settings.MANAGE_APP_USE_FULL_SCREEN_INTENT',
+              [{ key: 'android.provider.extra.APP_PACKAGE', value: 'com.emergencyalert.poc' }]
+            ).catch(() => Linking.openSettings()),
+        },
+        { text: 'Cancelar', style: 'cancel' },
+      ],
+    );
+  };
+
+  const handleDndPermission = async () => {
+    Alert.alert(
+      'Permissão: Não Perturbe',
+      'Para o alerta sonoro funcionar mesmo com o celular no modo "Não Perturbe" ou silencioso, este app precisa de acesso especial.\n\nNa próxima tela, encontre "Emergency Alert" e ative.',
+      [
+        {
+          text: 'Abrir configurações',
+          onPress: async () => {
+            await openDndAccessSettings();
+            // Re-verifica após voltar das configurações
+            hasDndAccess().then(setDndGranted);
+          },
+        },
+        { text: 'Cancelar', style: 'cancel' },
+      ],
+    );
+  };
 
   const handleConfigureAlerts = () => {
     const msg =
@@ -58,14 +103,39 @@ export default function ProfileScreen() {
       </View>
 
       {Platform.OS === 'android' && (
-        <TouchableOpacity
-          style={styles.configButton}
-          onPress={handleConfigureAlerts}
-        >
-          <Text style={styles.configButtonText}>
-            Configurar alertas (silencioso / Não perturbe)
-          </Text>
-        </TouchableOpacity>
+        <>
+          {needsFullScreenPermission && (
+            <TouchableOpacity style={styles.fullScreenButton} onPress={handleFullScreenPermission}>
+              <Text style={styles.dndButtonText}>Permitir alerta em tela cheia (Android 14+)</Text>
+              <Text style={styles.dndSubtext}>Necessário para acender a tela no lockscreen</Text>
+            </TouchableOpacity>
+          )}
+
+          <TouchableOpacity
+            style={[styles.dndButton, dndGranted === true && styles.dndGranted]}
+            onPress={handleDndPermission}
+          >
+            <Text style={styles.dndButtonText}>
+              {dndGranted === true
+                ? '✓ Alerta sonoro no Não Perturbe: ativo'
+                : 'Habilitar alerta no modo Não Perturbe'}
+            </Text>
+            {dndGranted === false && (
+              <Text style={styles.dndSubtext}>
+                Sem isso, o som pode ser bloqueado pelo sistema
+              </Text>
+            )}
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.configButton}
+            onPress={handleConfigureAlerts}
+          >
+            <Text style={styles.configButtonText}>
+              Configurar canal de notificações
+            </Text>
+          </TouchableOpacity>
+        </>
       )}
 
       <TouchableOpacity style={styles.logoutButton} onPress={handleSignOut}>
@@ -90,6 +160,25 @@ const styles = StyleSheet.create({
   label: { fontSize: 12, color: '#666', marginBottom: 4 },
   value: { fontSize: 16 },
   tokenValue: { fontSize: 12, fontFamily: 'monospace' },
+  fullScreenButton: {
+    marginBottom: 12,
+    padding: 16,
+    backgroundColor: '#6A1B9A',
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  dndButton: {
+    marginBottom: 12,
+    padding: 16,
+    backgroundColor: '#FF6F00',
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  dndGranted: {
+    backgroundColor: '#388E3C',
+  },
+  dndButtonText: { color: '#fff', fontWeight: '600', textAlign: 'center' },
+  dndSubtext: { color: '#ffe0b2', fontSize: 12, marginTop: 4, textAlign: 'center' },
   configButton: {
     marginBottom: 12,
     padding: 16,

@@ -127,3 +127,44 @@ export async function openNotificationSettings(): Promise<void> {
   const { Linking } = await import("react-native");
   await Linking.openSettings();
 }
+
+/**
+ * Verifica se o app tem acesso ao Não Perturbe (ACCESS_NOTIFICATION_POLICY).
+ * Necessário para bypassDnd funcionar no Android.
+ */
+export async function hasDndAccess(): Promise<boolean> {
+  if (Platform.OS !== "android") return true;
+  try {
+    const settings = await notifee.getNotificationSettings();
+    // android.alarm indica se o app pode agendar alarmes exatos;
+    // android.notification indica o estado geral de notificações.
+    // Notifee não expõe isNotificationPolicyAccessGranted diretamente,
+    // mas podemos detectar via NativeModules.
+    const { NativeModules } = await import("react-native");
+    const granted =
+      NativeModules?.NotifeeApiModule?.isNotificationPolicyAccessGranted?.() ??
+      null;
+    if (granted !== null) return granted;
+    // fallback: assume não concedido para solicitar ao usuário
+    return false;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Abre a tela de sistema "Acesso ao Não Perturbe" para o usuário
+ * conceder permissão ao app. Necessário para alertas sonoros em modo DND.
+ */
+export async function openDndAccessSettings(): Promise<void> {
+  if (Platform.OS !== "android") return;
+  const { Linking } = await import("react-native");
+  try {
+    await Linking.sendIntent(
+      "android.settings.NOTIFICATION_POLICY_ACCESS_SETTINGS",
+    );
+  } catch {
+    // fallback para configurações gerais se a intent não for suportada
+    await Linking.openSettings();
+  }
+}
