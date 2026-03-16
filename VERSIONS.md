@@ -5,6 +5,8 @@
 | Versão | versionCode | Data | APK |
 |--------|-------------|------|-----|
 | --- | --- | --- | --- |
+| 1.0.8 | 9 | 2026-03-16T22:10:25.916Z | `apks/emergency-alert-v1.0.8-9.apk` |
+| 1.0.7 | 8 | 2026-03-16T22:01:44.839Z | `apks/emergency-alert-v1.0.7-8.apk` |
 | 1.0.6 | 7 | 2026-03-14T19:51:35.991Z | `apks/emergency-alert-v1.0.6-7.apk` |
 | 1.0.5 | 6 | 2026-03-14T19:09:13.446Z | `apks/emergency-alert-v1.0.5-6.apk` |
 | 1.0.4 | 5 | 2026-03-14T18:54:22.647Z | `apks/emergency-alert-v1.0.4-5.apk` |

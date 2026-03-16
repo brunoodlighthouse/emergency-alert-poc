@@ -15,6 +15,7 @@ import {
   EMERGENCY_CHANNEL_ID,
   createEmergencyChannel,
 } from "./notifee-channel";
+import { blinkFlashlight } from "./flashlight";
 
 export async function registerForPushNotifications(): Promise<string | null> {
   if (!Device.isDevice) {
@@ -62,6 +63,7 @@ export async function setupNotificationListeners(
     if (data?.isEmergency === "true" && data?.title && data?.message) {
       const title = String(data.title);
       const message = String(data.message);
+      blinkFlashlight();
       onEmergencyAlert(title, message); // layout chama displayEmergencyNotification no callback
     }
   });

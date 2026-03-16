@@ -13,11 +13,13 @@ import {
   EMERGENCY_CHANNEL_ID,
   createEmergencyChannel,
 } from "./notifee-channel";
+import { blinkFlashlight } from "./flashlight";
 
 messaging().setBackgroundMessageHandler(async (remoteMessage) => {
   const data = remoteMessage.data;
   if (data?.isEmergency === "true" && data?.title && data?.message) {
     await createEmergencyChannel();
+    blinkFlashlight();
     await notifee.displayNotification({
       title: `🚨 ${data.title}`,
       body: String(data.message),
