@@ -3,6 +3,7 @@ import {
   displayEmergencyNotification,
   setupNotificationListeners,
 } from "@/lib/notifications";
+import { stopAlarmSound } from "@/lib/alarm-sound";
 import { Tabs } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import { Platform } from "react-native";
@@ -30,12 +31,14 @@ export default function AppLayout() {
         const n = initialNotification.notification;
         const title = n.title?.replace(/^🚨\s/, "") || "Alerta";
         const body = n.body || "";
+        stopAlarmSound(); // stop background alarm; overlay will restart it
         setEmergencyAlert({ title, message: body });
       }
 
       // App aberto ao tocar em notificação (FCM)
       const initialFcm = await messaging().getInitialNotification();
       if (initialFcm?.data?.title && initialFcm?.data?.message) {
+        stopAlarmSound(); // stop background alarm; overlay will restart it
         setEmergencyAlert({
           title: String(initialFcm.data.title),
           message: String(initialFcm.data.message),

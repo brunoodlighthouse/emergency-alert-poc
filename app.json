@@ -2,9 +2,9 @@
   "expo": {
     "name": "emergency-alert-poc",
     "slug": "emergency-alert-poc",
-    "version": "1.0.8",
+    "version": "1.0.12",
     "extra": {
-      "versionCode": 9,
+      "versionCode": 13,
       "router": {},
       "eas": {
         "projectId": "2862eebe-f3ef-417d-b54a-433668fe85e8"

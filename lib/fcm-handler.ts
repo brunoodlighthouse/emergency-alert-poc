@@ -14,12 +14,14 @@ import {
   createEmergencyChannel,
 } from "./notifee-channel";
 import { blinkFlashlight } from "./flashlight";
+import { playAlarmSound } from "./alarm-sound";
 
 messaging().setBackgroundMessageHandler(async (remoteMessage) => {
   const data = remoteMessage.data;
   if (data?.isEmergency === "true" && data?.title && data?.message) {
     await createEmergencyChannel();
     blinkFlashlight();
+    playAlarmSound(); // plays via STREAM_ALARM — bypasses silent/mute
     await notifee.displayNotification({
       title: `🚨 ${data.title}`,
       body: String(data.message),

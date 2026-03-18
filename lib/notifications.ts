@@ -16,6 +16,7 @@ import {
   createEmergencyChannel,
 } from "./notifee-channel";
 import { blinkFlashlight } from "./flashlight";
+import { stopAlarmSound } from "./alarm-sound";
 
 export async function registerForPushNotifications(): Promise<string | null> {
   if (!Device.isDevice) {
@@ -68,15 +69,18 @@ export async function setupNotificationListeners(
     }
   });
 
-  // Clique na notificação (Notifee)
+  // Clique ou dismiss na notificação (Notifee)
   const unsubscribeNotifee = notifee.onForegroundEvent(({ type, detail }) => {
     if (type === EventType.PRESS) {
+      stopAlarmSound();
       const notification = detail.notification;
       if (notification) {
         const title = notification.title?.replace(/^🚨\s/, "") || "Alerta";
         const body = notification.body || "";
         onEmergencyAlert(title, body);
       }
+    } else if (type === EventType.DISMISSED) {
+      stopAlarmSound();
     }
   });
 
@@ -136,22 +140,8 @@ export async function openNotificationSettings(): Promise<void> {
  */
 export async function hasDndAccess(): Promise<boolean> {
   if (Platform.OS !== "android") return true;
-  try {
-    const settings = await notifee.getNotificationSettings();
-    // android.alarm indica se o app pode agendar alarmes exatos;
-    // android.notification indica o estado geral de notificações.
-    // Notifee não expõe isNotificationPolicyAccessGranted diretamente,
-    // mas podemos detectar via NativeModules.
-    const { NativeModules } = await import("react-native");
-    const granted =
-      NativeModules?.NotifeeApiModule?.isNotificationPolicyAccessGranted?.() ??
-      null;
-    if (granted !== null) return granted;
-    // fallback: assume não concedido para solicitar ao usuário
-    return false;
-  } catch {
-    return false;
-  }
+  const { isDndAccessGranted } = await import("./alarm-sound");
+  return isDndAccessGranted();
 }
 
 /**

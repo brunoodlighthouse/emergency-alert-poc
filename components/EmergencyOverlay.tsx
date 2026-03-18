@@ -9,6 +9,7 @@ import {
   Platform,
 } from 'react-native';
 import * as Haptics from 'expo-haptics';
+import { playAlarmSound, stopAlarmSound } from '@/lib/alarm-sound';
 
 interface EmergencyOverlayProps {
   title: string;
@@ -32,6 +33,8 @@ export function EmergencyOverlay({ title, message, onClose, flashEffect = false 
 
   useEffect(() => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+    playAlarmSound();
+    return () => stopAlarmSound();
   }, []);
 
   return (
@@ -39,7 +42,7 @@ export function EmergencyOverlay({ title, message, onClose, flashEffect = false 
       visible
       animationType="fade"
       transparent={false}
-      onRequestClose={onClose}
+      onRequestClose={() => { stopAlarmSound(); onClose(); }}
     >
       <View
         style={[
@@ -51,7 +54,7 @@ export function EmergencyOverlay({ title, message, onClose, flashEffect = false 
           <Text style={styles.emoji}>🚨</Text>
           <Text style={styles.title}>{title}</Text>
           <Text style={styles.message}>{message}</Text>
-          <TouchableOpacity style={styles.closeButton} onPress={onClose}>
+          <TouchableOpacity style={styles.closeButton} onPress={() => { stopAlarmSound(); onClose(); }}>
             <Text style={styles.closeButtonText}>Fechar</Text>
           </TouchableOpacity>
         </View>

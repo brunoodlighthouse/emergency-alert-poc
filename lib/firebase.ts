@@ -40,6 +40,7 @@ const { getReactNativePersistence } = require("@firebase/auth") as {
   }) => Persistence;
 };
 
+
 const firebaseConfig = {
   apiKey: "",
   authDomain: "",

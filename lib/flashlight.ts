@@ -1,5 +1,4 @@
-import { Platform } from "react-native";
-import Torch from "react-native-torch";
+import { NativeModules, Platform } from "react-native";
 
 const BLINK_ON_MS = 300;
 const BLINK_OFF_MS = 300;
@@ -11,14 +10,16 @@ function sleep(ms: number): Promise<void> {
 
 export async function blinkFlashlight(): Promise<void> {
   if (Platform.OS !== "android") return;
+  const { TorchModule } = NativeModules;
+  if (!TorchModule) return;
   try {
     for (let i = 0; i < BLINK_TIMES; i++) {
-      await Torch.switchState(true);
+      TorchModule.switchState(true);
       await sleep(BLINK_ON_MS);
-      await Torch.switchState(false);
+      TorchModule.switchState(false);
       await sleep(BLINK_OFF_MS);
     }
   } catch {
-    // dispositivo sem flash ou permissão negada — ignora silenciosamente
+    // dispositivo sem flash — ignora
   }
 }
